@@ -1,1 +1,2 @@
-# Example plugin showing the CustomItem and CustomBlock API!
+Example plugin showing the Custom Item and Block and Entity API!
+Work in progress, API may to change.
