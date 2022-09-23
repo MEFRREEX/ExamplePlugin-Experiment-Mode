@@ -18,10 +18,11 @@ public class Main extends PluginBase implements Listener {
     public void onLoad() {
         log = new PluginLogger(this);
         try {
-            Item.registerCustomItem(MyArmor.class);
-            Item.registerCustomItem(MySword.class);
+//            Item.registerCustomItem(MyArmor.class);
+//            Item.registerCustomItem(MySword.class);
             Block.registerCustomBlock(List.of(MyBlock1.class));
-            Entity.registerCustomEntity(MyPig.def, MyPig.class);
+//            Block.registerCustomBlock(List.of(MySlab.class));
+//            Entity.registerCustomEntity(MyPig.def, MyPig.class);
 
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
@@ -41,9 +42,9 @@ public class Main extends PluginBase implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onJump(PlayerJumpEvent event) {
-        System.out.println("触发事件");
-        new MyPig(event.getPlayer().getChunk(), Entity.getDefaultNBT(event.getPlayer())).spawnToAll();
-    }
+//    @EventHandler(priority = EventPriority.NORMAL)
+//    public void onJump(PlayerJumpEvent event) {
+//        System.out.println("触发事件");
+//        new MyPig(event.getPlayer().getChunk(), Entity.getDefaultNBT(event.getPlayer())).spawnToAll();
+//    }
 }
