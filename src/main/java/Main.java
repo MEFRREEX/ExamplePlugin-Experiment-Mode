@@ -1,9 +1,5 @@
 import cn.nukkit.block.Block;
-import cn.nukkit.entity.Entity;
-import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
-import cn.nukkit.event.player.PlayerJumpEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.plugin.PluginLogger;
@@ -18,10 +14,8 @@ public class Main extends PluginBase implements Listener {
     public void onLoad() {
         log = new PluginLogger(this);
         try {
-//            Item.registerCustomItem(MyArmor.class);
-//            Item.registerCustomItem(MySword.class);
-            Block.registerCustomBlock(List.of(MyBlock1.class));
-//            Block.registerCustomBlock(List.of(MySlab.class));
+            Item.registerCustomItem(List.of(MyArmor.class, MySword.class));
+            Block.registerCustomBlock(List.of(MyBlock1.class, MySlab.class));
 //            Entity.registerCustomEntity(MyPig.def, MyPig.class);
 
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |

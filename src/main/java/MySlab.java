@@ -1,15 +1,13 @@
 import cn.nukkit.Player;
-import cn.nukkit.api.PowerNukkitOnly;
-import cn.nukkit.api.Since;
+import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.customblock.CustomBlock;
 import cn.nukkit.block.customblock.type.MaterialsFactory;
 import cn.nukkit.blockproperty.BlockProperties;
 import cn.nukkit.blockproperty.BooleanBlockProperty;
 import cn.nukkit.item.Item;
-import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.BlockFace;
-import cn.nukkit.math.SimpleAxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
@@ -77,8 +75,6 @@ public class MySlab extends Block implements CustomBlock {
                                         .add(new FloatTag("", 16))
                                         .add(new FloatTag("", 8))
                                         .add(new FloatTag("", 16))))
-//                        .putCompound("minecraft:on_interact", new CompoundTag()
-//                                .putString("minecraft:on_interact", "bridge:on_combine_slabs"))
                         .putCompound("minecraft:selection_box", new CompoundTag()
                                 .putBoolean("enabled", true)
                                 .putList(new ListTag<FloatTag>("origin")
@@ -96,23 +92,21 @@ public class MySlab extends Block implements CustomBlock {
                                 .putBoolean("enabled", true)
                                 .putList(new ListTag<FloatTag>("origin")
                                         .add(new FloatTag("", -8))
-                                        .add(new FloatTag("", 0))
+                                        .add(new FloatTag("", 8))
                                         .add(new FloatTag("", -8)))
                                 .putList(new ListTag<FloatTag>("size")
                                         .add(new FloatTag("", 16))
-                                        .add(new FloatTag("", 8))
+                                        .add(new FloatTag("", 16))
                                         .add(new FloatTag("", 16))))
-//                        .putCompound("minecraft:on_interact", new CompoundTag()
-//                                .putString("minecraft:on_interact", "bridge:on_combine_slabs"))
                         .putCompound("minecraft:selection_box", new CompoundTag()
                                 .putBoolean("enabled", true)
                                 .putList(new ListTag<FloatTag>("origin")
                                         .add(new FloatTag("", -8))
-                                        .add(new FloatTag("", 0))
+                                        .add(new FloatTag("", 8))
                                         .add(new FloatTag("", -8)))
                                 .putList(new ListTag<FloatTag>("size")
                                         .add(new FloatTag("", 16))
-                                        .add(new FloatTag("", 8))
+                                        .add(new FloatTag("", 16))
                                         .add(new FloatTag("", 16)))))
                 .putString("condition", "query.block_property('bridge:top_slot_bit') == true && query.block_property('bridge:is_full_bit') == false");
         var cmp3 = new CompoundTag()
@@ -128,8 +122,6 @@ public class MySlab extends Block implements CustomBlock {
                                         .add(new FloatTag("", 16))
                                         .add(new FloatTag("", 16))
                                         .add(new FloatTag("", 16))))
-//                        .putCompound("minecraft:on_interact", new CompoundTag()
-//                                .putString("minecraft:on_interact", "bridge:on_combine_slabs"))
                         .putCompound("minecraft:selection_box", new CompoundTag()
                                 .putBoolean("enabled", true)
                                 .putList(new ListTag<FloatTag>("origin")
@@ -197,6 +189,7 @@ public class MySlab extends Block implements CustomBlock {
     public boolean isOnTop() {
         return getBooleanValue(BRIDGE_TOP_SLOT_BIT);
     }
+
     public boolean isFull() {
         return getBooleanValue(BRIDGE_IS_FULL_BIT);
     }
@@ -211,25 +204,48 @@ public class MySlab extends Block implements CustomBlock {
 
     @Override
     public boolean place(@NotNull Item item, @NotNull Block block, @NotNull Block target, @NotNull BlockFace face, double fx, double fy, double fz, @Nullable Player player) {
-        setBooleanValue(BRIDGE_TOP_SLOT_BIT, false);
+        setBooleanValue(BRIDGE_IS_FULL_BIT, false);
         if (face == BlockFace.DOWN) {
             if (target instanceof MySlab) {//如果往上层半砖下方放置半砖，且不完整,则设为完整
-                if (getBooleanValue(BRIDGE_TOP_SLOT_BIT) && !getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                if (target.getBooleanValue(BRIDGE_TOP_SLOT_BIT) && !target.getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                    setBooleanValue(BRIDGE_TOP_SLOT_BIT, false);
                     setBooleanValue(BRIDGE_IS_FULL_BIT, true);
-                }
+                    this.getLevel().setBlock(target, this, true);
+                    //todo 未知原因导致客户端生成假方块，需要发送UpdateBlockPacket解决
+                    this.getLevel().sendBlocks(Server.getInstance().getOnlinePlayers().values().toArray(new Player[0]), new Vector3[]{block});
+                    return true;
+                } else if (!target.getBooleanValue(BRIDGE_TOP_SLOT_BIT) || target.getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                    setBooleanValue(BRIDGE_TOP_SLOT_BIT, true);
+                    this.getLevel().setBlock(this, this, true);
+                    return true;
+                } else return false;
             } else {
                 setBooleanValue(BRIDGE_TOP_SLOT_BIT, true);
+                this.getLevel().setBlock(this, this, true);
+                return true;
             }
-        } else if(face == BlockFace.UP) {//如果往下层半砖上方放置半砖，且不完整,则设为完整
+        } else if (face == BlockFace.UP) {//如果往下层半砖上方放置半砖，且不完整,则设为完整
             if (target instanceof MySlab) {
-                if (!getBooleanValue(BRIDGE_TOP_SLOT_BIT) && !getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                if (!target.getBooleanValue(BRIDGE_TOP_SLOT_BIT) && !target.getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                    setBooleanValue(BRIDGE_TOP_SLOT_BIT, false);
                     setBooleanValue(BRIDGE_IS_FULL_BIT, true);
-                }
+                    this.getLevel().setBlock(target, this, true);
+                    this.getLevel().sendBlocks(Server.getInstance().getOnlinePlayers().values().toArray(new Player[0]), new Vector3[]{block});
+                    return true;
+                } else if (target.getBooleanValue(BRIDGE_TOP_SLOT_BIT) || target.getBooleanValue(BRIDGE_IS_FULL_BIT)) {
+                    setBooleanValue(BRIDGE_TOP_SLOT_BIT, false);
+                    this.getLevel().setBlock(this, this, true);
+                    return true;
+                } else return false;
             } else {
                 setBooleanValue(BRIDGE_TOP_SLOT_BIT, false);
+                this.getLevel().setBlock(this, this, true);
             }
+        } else {
+            setBooleanValue(BRIDGE_TOP_SLOT_BIT, fy > 0.5);
+            this.getLevel().setBlock(this, this, true);
+            return true;
         }
-        this.getLevel().setBlock(this,this,true);
-        return true;
+        return false;
     }
 }
