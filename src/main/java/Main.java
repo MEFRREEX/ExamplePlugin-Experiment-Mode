@@ -1,5 +1,9 @@
 import cn.nukkit.block.Block;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
+import cn.nukkit.event.player.PlayerJumpEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.plugin.PluginLogger;
@@ -16,7 +20,7 @@ public class Main extends PluginBase implements Listener {
         try {
             Item.registerCustomItem(List.of(MyArmor.class, MySword.class));
             Block.registerCustomBlock(List.of(MyBlock1.class, MySlab.class));
-//            Entity.registerCustomEntity(MyPig.def, MyPig.class);
+            Entity.registerCustomEntity(MyPig.def, MyPig.class);
 
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
@@ -36,9 +40,9 @@ public class Main extends PluginBase implements Listener {
 
     }
 
-//    @EventHandler(priority = EventPriority.NORMAL)
-//    public void onJump(PlayerJumpEvent event) {
-//        System.out.println("触发事件");
-//        new MyPig(event.getPlayer().getChunk(), Entity.getDefaultNBT(event.getPlayer())).spawnToAll();
-//    }
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onJump(PlayerJumpEvent event) {
+        System.out.println("触发事件");
+        new MyPig(event.getPlayer().getChunk(), Entity.getDefaultNBT(event.getPlayer())).spawnToAll();
+    }
 }
