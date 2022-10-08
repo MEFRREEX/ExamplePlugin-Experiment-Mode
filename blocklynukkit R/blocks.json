@@ -1,0 +1,13 @@
+{
+  "format_version": [
+    1,
+    1,
+    0
+  ],
+  "blocklynukkit:redstoneluckyblock": {
+    "sound": "metal"
+  },
+  "blocklynukkit:blue_mahoe_slab": {
+    "sound": "wood"
+  }
+}
